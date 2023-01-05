@@ -14,31 +14,8 @@ audio_tags = {'comments': 'Converted using pydub!'}
 
 
 @st.cache(persist=True,allow_output_mutation=False,show_spinner=True,suppress_st_warning=True)
-def to_mp3(audio_file):
-    ## Converting Different Audio Formats To MP3 ##
-    if audio_file.name.split('.')[-1].lower()=="wav":
-        audio_data = AudioSegment.from_wav(audio_file)
-
-    elif audio_file.name.split('.')[-1].lower()=="mp3":
-        audio_data = AudioSegment.from_mp3(audio_file)
-
-    elif audio_file.name.split('.')[-1].lower()=="ogg":
-        audio_data = AudioSegment.from_ogg(audio_file)
-
-    elif audio_file.name.split('.')[-1].lower()=="wma":
-        audio_data = AudioSegment.from_file(audio_file,"wma")
-
-    elif audio_file.name.split('.')[-1].lower()=="aac":
-        audio_data = AudioSegment.from_file(audio_file,"aac")
-
-    elif audio_file.name.split('.')[-1].lower()=="flac":
-        audio_data = AudioSegment.from_file(audio_file,"flac")
-
-    elif audio_file.name.split('.')[-1].lower()=="flv":
-        audio_data = AudioSegment.from_flv(audio_file)
-
-    elif audio_file.name.split('.')[-1].lower()=="mp4":
-        audio_data = AudioSegment.from_file(audio_file,"mp4")
+def to_audio(audio_file):
+    audio_data = AudioSegment.from_file(audio_file)
     return audio_data
 
 @st.cache(persist=True,allow_output_mutation=False,show_spinner=True,suppress_st_warning=True)
@@ -62,11 +39,8 @@ uploaded_file = st.file_uploader("Upload audio file", type=["wav","mp3","ogg","w
 audio_file = None
 
 if uploaded_file is not None:
-    audio_bytes = uploaded_file.read()
-    with open(uploaded_file.name,"wb") as f:
-        f.write((uploaded_file).getbuffer())
     with st.spinner(f"Processing Audio ... 💫"):
-        output_audio_file = to_mp3(uploaded_file)
+        output_audio_file = to_audio(uploaded_file)
         audio_file = open(output_audio_file, 'rb')
         audio_bytes = audio_file.read()
     print("Opening ",audio_file)
