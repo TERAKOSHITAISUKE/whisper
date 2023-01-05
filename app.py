@@ -12,7 +12,6 @@ st.set_page_config(
 
 audio_tags = {'comments': 'Converted using pydub!'}
 
-
 @st.cache(persist=True,allow_output_mutation=False,show_spinner=True,suppress_st_warning=True)
 def to_audio(audio_file):
     audio_data = AudioSegment.from_file(audio_file)
@@ -41,6 +40,10 @@ audio_file = None
 if uploaded_file is not None:
     with st.spinner(f"Processing Audio ... 💫"):
         st.text(uploaded_file)
+        st.text(uploaded_file.name)
+        video_file = open(uploaded_file.name, 'rb')
+        video_bytes = video_file.read()
+        st.video(video_bytes)
         output_audio_file = to_audio(uploaded_file)
         audio_file = open(output_audio_file, 'rb')
         audio_bytes = audio_file.read()
