@@ -22,7 +22,7 @@ def to_audio(audio_file):
 def process_audio(filename, model_type):
     model = whisper.load_model(model_type)
     result = model.transcribe(filename)
-    return result["text"]
+    return result
 
 @st.cache(persist=True,allow_output_mutation=False,show_spinner=True,suppress_st_warning=True)
 def save_transcript(txt_file):
@@ -40,7 +40,11 @@ audio_file = None
 
 if uploaded_file is not None:
     with st.spinner(f"Processing Audio ... 💫"):
-        output_audio_file = to_audio(uploaded_file)
+        uploaded_file
+        file_ = open(uploaded_file, "rb")
+        contents = file_.read()
+        file_.close()
+        output_audio_file = to_audio(contents)
         audio_file = open(output_audio_file, 'rb')
         audio_bytes = audio_file.read()
     print("Opening ",audio_file)
