@@ -40,7 +40,8 @@ audio_file = None
 
 if uploaded_file is not None:
     with st.spinner(f"Processing Audio ... 💫"):
-        output_audio_file = to_audio(uploaded_file.name)
+        st.text(uploaded_file)
+        output_audio_file = to_audio(uploaded_file)
         audio_file = open(output_audio_file, 'rb')
         audio_bytes = audio_file.read()
     print("Opening ",audio_file)
