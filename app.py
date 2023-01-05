@@ -12,45 +12,34 @@ st.set_page_config(
 
 audio_tags = {'comments': 'Converted using pydub!'}
 
-upload_path = "uploads/"
-download_path = "downloads/"
-transcript_path = "transcripts/"
 
 @st.cache(persist=True,allow_output_mutation=False,show_spinner=True,suppress_st_warning=True)
-def to_mp3(audio_file, output_audio_file, upload_path, download_path):
+def to_mp3(audio_file):
     ## Converting Different Audio Formats To MP3 ##
     if audio_file.name.split('.')[-1].lower()=="wav":
-        audio_data = AudioSegment.from_wav(os.path.join(upload_path,audio_file.name))
-        audio_data.export(os.path.join(download_path,output_audio_file), format="mp3", tags=audio_tags)
+        audio_data = AudioSegment.from_wav(audio_file)
 
     elif audio_file.name.split('.')[-1].lower()=="mp3":
-        audio_data = AudioSegment.from_mp3(os.path.join(upload_path,audio_file.name))
-        audio_data.export(os.path.join(download_path,output_audio_file), format="mp3", tags=audio_tags)
+        audio_data = AudioSegment.from_mp3(audio_file)
 
     elif audio_file.name.split('.')[-1].lower()=="ogg":
-        audio_data = AudioSegment.from_ogg(os.path.join(upload_path,audio_file.name))
-        audio_data.export(os.path.join(download_path,output_audio_file), format="mp3", tags=audio_tags)
+        audio_data = AudioSegment.from_ogg(audio_file)
 
     elif audio_file.name.split('.')[-1].lower()=="wma":
-        audio_data = AudioSegment.from_file(os.path.join(upload_path,audio_file.name),"wma")
-        audio_data.export(os.path.join(download_path,output_audio_file), format="mp3", tags=audio_tags)
+        audio_data = AudioSegment.from_file(audio_file,"wma")
 
     elif audio_file.name.split('.')[-1].lower()=="aac":
-        audio_data = AudioSegment.from_file(os.path.join(upload_path,audio_file.name),"aac")
-        audio_data.export(os.path.join(download_path,output_audio_file), format="mp3", tags=audio_tags)
+        audio_data = AudioSegment.from_file(audio_file,"aac")
 
     elif audio_file.name.split('.')[-1].lower()=="flac":
-        audio_data = AudioSegment.from_file(os.path.join(upload_path,audio_file.name),"flac")
-        audio_data.export(os.path.join(download_path,output_audio_file), format="mp3", tags=audio_tags)
+        audio_data = AudioSegment.from_file(audio_file,"flac")
 
     elif audio_file.name.split('.')[-1].lower()=="flv":
-        audio_data = AudioSegment.from_flv(os.path.join(upload_path,audio_file.name))
-        audio_data.export(os.path.join(download_path,output_audio_file), format="mp3", tags=audio_tags)
+        audio_data = AudioSegment.from_flv(audio_file)
 
     elif audio_file.name.split('.')[-1].lower()=="mp4":
-        audio_data = AudioSegment.from_file(os.path.join(upload_path,audio_file.name),"mp4")
-        audio_data.export(os.path.join(download_path,output_audio_file), format="mp3", tags=audio_tags)
-    return output_audio_file
+        audio_data = AudioSegment.from_file(audio_file,"mp4")
+    return audio_data
 
 @st.cache(persist=True,allow_output_mutation=False,show_spinner=True,suppress_st_warning=True)
 def process_audio(filename, model_type):
@@ -59,9 +48,12 @@ def process_audio(filename, model_type):
     return result["text"]
 
 @st.cache(persist=True,allow_output_mutation=False,show_spinner=True,suppress_st_warning=True)
-def save_transcript(transcript_data, txt_file):
-    with open(os.path.join(transcript_path, txt_file),"w") as f:
-        f.write(transcript_data)
+def save_transcript(txt_file):
+    for i in range(len(txt_file["segments"])):
+        with open(f"result.txt", "a") as f:
+            f.write(txt_file['segments'][i]['text'])
+            f.write('\n\n')
+            f.close()
 
 st.title("🗣 Automatic Speech Recognition using whisper by OpenAI ✨")
 st.info('✨ Supports all popular audio formats - WAV, MP3, MP4, OGG, WMA, AAC, FLAC, FLV ')
@@ -71,12 +63,11 @@ audio_file = None
 
 if uploaded_file is not None:
     audio_bytes = uploaded_file.read()
-    with open(os.path.join(upload_path,uploaded_file.name),"wb") as f:
+    with open(uploaded_file.name,"wb") as f:
         f.write((uploaded_file).getbuffer())
     with st.spinner(f"Processing Audio ... 💫"):
-        output_audio_file = uploaded_file.name.split('.')[0] + '.mp3'
-        output_audio_file = to_mp3(uploaded_file, output_audio_file, upload_path, download_path)
-        audio_file = open(os.path.join(download_path,output_audio_file), 'rb')
+        output_audio_file = to_mp3(uploaded_file)
+        audio_file = open(output_audio_file, 'rb')
         audio_bytes = audio_file.read()
     print("Opening ",audio_file)
     st.markdown("---")
@@ -89,18 +80,14 @@ if uploaded_file is not None:
 
     if st.button("Generate Transcript"):
         with st.spinner(f"Generating Transcript... 💫"):
-            transcript = process_audio(str(os.path.abspath(os.path.join(download_path,output_audio_file))), whisper_model_type.lower())
-
-            output_txt_file = str(output_audio_file.split('.')[0]+".txt")
-
-            save_transcript(transcript, output_txt_file)
-            output_file = open(os.path.join(transcript_path,output_txt_file),"r")
+            transcript = process_audio(audio_bytes, whisper_model_type.lower())
+            output_file = save_transcript(transcript)
             output_file_data = output_file.read()
 
         if st.download_button(
                             label="Download Transcript 📝",
                             data=output_file_data,
-                            file_name=output_txt_file,
+                            file_name='result',
                             mime='text/plain'
                         ):
             st.balloons()
