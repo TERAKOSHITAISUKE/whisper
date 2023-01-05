@@ -13,9 +13,9 @@ audio_tags = {'comments': 'Converted using pydub!'}
 
 
 @st.cache(persist=True,allow_output_mutation=False,show_spinner=True,suppress_st_warning=True)
-def process_audio(filename, model_type):
+def process_audio(video_bytes, model_type):
     model = whisper.load_model(model_type)
-    result = model.transcribe(filename)
+    result = model.transcribe(video_bytes, fp16=False, verbose=True, language="ja")
     return result
 
 @st.cache(persist=True,allow_output_mutation=False,show_spinner=True,suppress_st_warning=True)
