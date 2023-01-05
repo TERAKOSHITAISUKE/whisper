@@ -11,7 +11,7 @@ ADD . /app
 # Install dependencies
 RUN pip install -r requirements.txt
 RUN apt-get update
-RUN apt-get install ffmpeg
+RUN apt-get -y install ffmpeg
 
 # Expose port 
 ENV PORT 8501
