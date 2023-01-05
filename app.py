@@ -44,7 +44,7 @@ if uploaded_file is not None:
         video_file = open(uploaded_file.name, 'rb')
         video_bytes = video_file.read()
         st.video(video_bytes)
-        output_audio_file = to_audio(uploaded_file)
+        output_audio_file = to_audio(video_bytes)
         audio_file = open(output_audio_file, 'rb')
         audio_bytes = audio_file.read()
     print("Opening ",audio_file)
